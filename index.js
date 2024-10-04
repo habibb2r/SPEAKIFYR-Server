@@ -144,19 +144,13 @@ async function run() {
 
     app.post('/addClass', async (req, res) => {
         const body = req.body;
-        console.log(body)
         const insturctorQuery ={_id: new ObjectId(body.classId)}
         const query = {classId : body.classId , email : body.email}
         const existing = await myClassCollection.findOne(query);
-
         if(existing){
           return res.send({message: "Already added"})
         }
-        const instinfo = await classCollection.findOne(insturctorQuery)
-        console.log(instinfo)
-        const sitDecrease = instinfo.sit - 1
-        console.log(sitDecrease)
-        const updateSit = await classCollection.updateOne(insturctorQuery,{$set:{ sit: sitDecrease}})
+        const updateSit = await classCollection.updateOne(insturctorQuery,{$inc:{ sit: -1}})
         const result = await myClassCollection.insertOne(req.body);
         res.send({status: true, message: "Added to Cart, Please, complete next procedure", result, updateSit});
       });
