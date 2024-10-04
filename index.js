@@ -165,6 +165,13 @@ async function run() {
         res.send({status: true, updateClass, result});
       })
 
+      app.get('/myEnrolled', async(req, res) => {
+        const email = req.query.email;
+        const query = {email: email};
+        const result = await myClassCollection.find(query).toArray();
+        res.send(result);
+      })
+
     app.post('/userList', async (req, res) => {
       const user = req.body;
       const query = {email: user.email}
