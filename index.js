@@ -164,10 +164,11 @@ async function run() {
       app.delete('/addClass/:id', verifyJWT, async (req, res) => {
         const id = req.params.id;
         const classId = req.query.classId
-        const query = {_id : new ObjectId(id)};
-        console.log(query,classId)
-        // const  result = await myClassCollection.deleteOne(query)
-        // res.send(result);
+        const myClassQuery = {_id : new ObjectId(id)};
+        const classQuery = {_id : new ObjectId(classId)};
+        const updateClass = await classCollection.updateOne(classQuery, { $inc: { sit: 1 } });
+        const  result = await myClassCollection.deleteOne(myClassQuery)
+        res.send({status: true, updateClass, result});
       })
 
     app.post('/userList', async (req, res) => {
