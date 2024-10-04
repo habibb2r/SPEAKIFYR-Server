@@ -62,7 +62,7 @@ async function run() {
     //JWT
     app.post('/jwt', (req, res) => {
       const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn:'5h'})
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn:'5000hr'})
       res.send({token})
     })
 
@@ -143,24 +143,31 @@ async function run() {
     });
 
     app.post('/addClass', async (req, res) => {
-      
-        const query = {classId : req.body.classId , email : req.body.email}
+        const body = req.body;
+        console.log(body)
+        const insturctorQuery ={_id: new ObjectId(body.classId)}
+        const query = {classId : body.classId , email : body.email}
         const existing = await myClassCollection.findOne(query);
 
         if(existing){
           return res.send({message: "Already added"})
         }
+        const instinfo = await classCollection.findOne(insturctorQuery)
+        console.log(instinfo)
+        const sitDecrease = instinfo.sit - 1
+        console.log(sitDecrease)
+        const updateSit = await classCollection.updateOne(insturctorQuery,{$set:{ sit: sitDecrease}})
         const result = await myClassCollection.insertOne(req.body);
-        console.log(result)
-        res.send(result);
+        res.send({status: true, message: "Added to Cart, Please, complete next procedure", result, updateSit});
       });
 
       app.delete('/addClass/:id', verifyJWT, async (req, res) => {
         const id = req.params.id;
+        const classId = req.query.classId
         const query = {_id : new ObjectId(id)};
-        console.log(query)
-        const  result = await myClassCollection.deleteOne(query)
-        res.send(result);
+        console.log(query,classId)
+        // const  result = await myClassCollection.deleteOne(query)
+        // res.send(result);
       })
 
     app.post('/userList', async (req, res) => {
