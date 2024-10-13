@@ -121,6 +121,13 @@ async function run() {
 
     app.post('/makepayment', async(req, res)=>{
       const paymentSlip = req.body;
+      const query = { _id: new ObjectId(paymentSlip.classId) };
+      const classData = await classCollection.findOne(query);
+      const courseTag = classData.course_tag
+      const randomNumber = Math.floor(Math.random() * 21) + 100; 
+      const createRoll = courseTag + randomNumber
+      const roll = createRoll.toString()
+      console.log(roll)
     })
 
     app.get("/userList/admin/:email", verifyJWT, async (req, res) => {
