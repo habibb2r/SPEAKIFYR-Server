@@ -112,6 +112,13 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/userInfo', async(req, res)=>{
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await userCollection.findOne(query, {projection: { photo: 0, role: 0 }});
+      res.send(result);
+    })
+
     app.get("/userList/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
@@ -189,6 +196,19 @@ async function run() {
       const result = await userCollection.insertOne(user);
       return res.send(result);
     });
+
+
+    //Instructor Section
+
+    app.get('/userList/instructorInfo', async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      if(result.role == 'instructor'){
+          return res.send({instructor : true})
+      }
+      return res.send({instructor : false})
+    })
 
     // Payment
     app.post("/createPayment-intent", async (req, res) => {
