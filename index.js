@@ -54,6 +54,7 @@ async function run() {
     const instCollection = client.db("summerCamp").collection("instructorList");
     const userCollection = client.db("summerCamp").collection("userList");
     const myClassCollection = client.db("summerCamp").collection("myClass");
+    const paymentCollection = client.db("summerCamp").collection("pay");
 
     //JWT
     app.post("/jwt", (req, res) => {
@@ -119,16 +120,37 @@ async function run() {
       res.send(result);
     })
 
-    app.post('/makepayment', async(req, res)=>{
-      const paymentSlip = req.body;
-      const query = { _id: new ObjectId(paymentSlip.classId) };
-      const classData = await classCollection.findOne(query);
-      const courseTag = classData.course_tag
-      const randomNumber = Math.floor(Math.random() * 21) + 100; 
-      const createRoll = courseTag + randomNumber
-      const roll = createRoll.toString()
-      console.log(roll)
-    })
+    app.post('/makepayment', async (req, res) => {
+      try {
+        const paymentSlip = req.body;
+        const query = { _id: new ObjectId(paymentSlip.classId) };
+        const classData = await classCollection.findOne(query);
+        const courseTag = classData.course_tag;
+    
+        const generateRoll = () => {
+          const randomNumber = Math.floor(Math.random() * 21) + 100; // Generate random number between 100 and 120
+          return courseTag + randomNumber;
+        };
+    
+        let assignRoll;
+        let isRollExist;
+        
+        do {
+          assignRoll = generateRoll();
+          isRollExist = await paymentCollection.findOne({ entry_code: assignRoll });
+        } while (isRollExist);
+        const payslip={
+          ...paymentSlip,
+          entry_code: assignRoll,
+        }
+        const removeCart = await myClassCollection.deleteOne({ _id: new ObjectId(paymentSlip.cartId) });
+        const result = await paymentCollection.insertOne(payslip);
+        res.send({ status: true, result, removeCart });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ status: false, message: 'Internal Server Error' });
+      }
+    });
 
     app.get("/userList/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
