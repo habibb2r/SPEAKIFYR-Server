@@ -119,6 +119,10 @@ async function run() {
       res.send(result);
     })
 
+    app.post('/makepayment', async(req, res)=>{
+      const paymentSlip = req.body;
+    })
+
     app.get("/userList/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
