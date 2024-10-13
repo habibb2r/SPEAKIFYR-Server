@@ -152,6 +152,12 @@ async function run() {
       }
     });
 
+    app.get('/myEnrolledClass', async(req, res)=>{
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    })
     app.get("/userList/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
