@@ -294,6 +294,22 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/instructorStats', async(req, res)=>{
+      const email = req.query.email;
+      const query = { email: email };
+      const user = await userCollection.findOne(query, {projection:{role: 0, _id: 0}});
+      const instInfo = await instCollection.findOne(query, {projection:{details: 0, image: 0}});
+      const courseInfo = await classCollection.findOne({_id: new ObjectId(instInfo.courseID)},{projection: {name: 0, instructor: 0}})
+      const totalEnrolled = await paymentCollection.find({classId: instInfo.courseID}).toArray()
+      const earned = totalEnrolled.reduce((total, payment) => total + payment.price, 0);
+      const stats = {
+        ...user, ...instInfo, ...courseInfo,
+        totalEnrolled: totalEnrolled.length,
+        earned,
+      }
+      res.send(stats)
+    })
+
     // Payment
     app.post("/createPayment-intent", async (req, res) => {
       const { price } = req.body;
