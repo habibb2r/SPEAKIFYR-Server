@@ -172,7 +172,23 @@ async function run() {
       res.send(enrollInfo);
     });
 
-    
+    app.get('/userStat', async(req, res)=>{
+      const email = req.query.email;
+      const query = { email: email };
+      const user = await userCollection.findOne(query, {projection:{role: 0, _id: 0}});
+      const cartData = (await myClassCollection.find(query).toArray()).length;
+      const paymentData = await paymentCollection.find(query).toArray();
+      const totalSpend = paymentData.reduce((total, payment) => total + payment.price, 0);
+      const result = {
+        user,
+        cartData,
+        totalEnrolled: paymentData.length,
+        totalSpend,
+      };
+
+      res.send(result)
+    })
+
     app.get("/userList/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
