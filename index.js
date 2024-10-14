@@ -313,7 +313,7 @@ async function run() {
     app.get('/enrolledStudents', async(req, res)=>{
       const email = req.query.email
       const query = { email: email };
-      const instuctor = await instCollection.findOne(query);
+      const instuctor = await instCollection.findOne(query,{projection:{details: 0, name: 0, image: 0, email: 0}});
       const students = await paymentCollection.find({classId: instuctor.courseID}).toArray()
       const enrolledData = {
         ...instuctor,
