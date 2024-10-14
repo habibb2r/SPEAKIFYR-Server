@@ -308,6 +308,18 @@ async function run() {
         earned,
       }
       res.send(stats)
+    });
+
+    app.get('/enrolledStudents', async(req, res)=>{
+      const email = req.query.email
+      const query = { email: email };
+      const instuctor = await instCollection.findOne(query);
+      const students = await paymentCollection.find({classId: instuctor.courseID}).toArray()
+      const enrolledData = {
+        ...instuctor,
+        students
+      }
+      res.send(enrolledData)
     })
 
     // Payment
