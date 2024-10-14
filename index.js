@@ -116,8 +116,15 @@ async function run() {
     app.get('/userInfo', async(req, res)=>{
       const email = req.query.email;
       const query = { email: email };
-      const result = await userCollection.findOne(query, {projection: { photo: 0, role: 0 }});
+      const result = await userCollection.findOne(query, {projection: { photo: 0 }});
       res.send(result);
+    });
+
+    app.get('/isUser', async(req, res)=>{
+      const email = req.query.email;
+      const query = { email: email , role: 'student' };
+      const result = await userCollection.findOne(query);
+      res.send(result)
     })
 
     app.post('/makepayment', async (req, res) => {
@@ -172,7 +179,7 @@ async function run() {
       res.send(enrollInfo);
     });
 
-    app.get('/userStat', async(req, res)=>{
+    app.get('/userStats', async(req, res)=>{
       const email = req.query.email;
       const query = { email: email };
       const user = await userCollection.findOne(query, {projection:{role: 0, _id: 0}});
@@ -278,6 +285,13 @@ async function run() {
           return res.send({instructor : true})
       }
       return res.send({instructor : false})
+    })
+
+    app.get('/isInstructor', async(req, res)=>{
+      const email = req.query.email;
+      const query = { email: email , role: 'instructor' };
+      const result = await userCollection.findOne(query);
+      res.send(result)
     })
 
     // Payment
