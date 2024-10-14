@@ -142,10 +142,14 @@ async function run() {
         const payslip={
           ...paymentSlip,
           entry_code: assignRoll,
+          room: classData.assign_room,
+          camp_start: classData.camp_start,
+          camp_end: classData.camp_end,
         }
         const removeCart = await myClassCollection.deleteOne({ _id: new ObjectId(paymentSlip.cartId) });
+        const updateClass = await classCollection.updateOne(query, { $inc: { total_ernolled: 1 } });
         const result = await paymentCollection.insertOne(payslip);
-        res.send({ status: true, result, removeCart });
+        res.send({ status: true, data: {result, removeCart, updateClass} });
       } catch (error) {
         console.error(error);
         res.status(500).send({ status: false, message: 'Internal Server Error' });
@@ -155,9 +159,20 @@ async function run() {
     app.get('/myEnrolledClass', async(req, res)=>{
       const email = req.query.email;
       const query = { email: email };
-      const result = await paymentCollection.find(query).toArray();
-      res.send(result);
-    })
+      const result = await paymentCollection.find(query,{projection:{cartId: 0, email: 0,  pay: 0}}).toArray();
+      const enrollInfo = []
+      for(let i = 0; i < result.length; i++) {
+        const classData = await classCollection.findOne({ _id: new ObjectId(result[i].classId) }, {projection: {_id: 0, name: 1, instructor: 1, image: 1}});
+        const enrollData = {
+          ...result[i],
+          classData
+        }
+        enrollInfo.push(enrollData)
+      }
+      res.send(enrollInfo);
+    });
+
+    
     app.get("/userList/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
