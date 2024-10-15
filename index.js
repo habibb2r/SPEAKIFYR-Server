@@ -223,6 +223,26 @@ async function run() {
         res.send(result);
       }
     );
+
+    app.get('/adminStats', async(req, res)=>{
+      const email = req.query.email;
+      const query = { email: email };
+      const adminInfo = await userCollection.findOne(query);
+      const totalUser = (await userCollection.find().toArray()).length
+      const totalClasses = (await classCollection.find().toArray()).length
+      const totalEnrolledClass = await paymentCollection.find().toArray()
+      const totalTransaction = totalEnrolledClass.reduce((total, payment) => total + payment.price, 0)
+      const result = {
+        adminInfo,
+        totalUser,
+        totalClasses,
+        totalEnrolledClass: totalEnrolledClass.length,
+        totalTransaction,
+      }
+
+      res.send(result)
+
+    })
     app.delete("/userList/:id", verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: id };
