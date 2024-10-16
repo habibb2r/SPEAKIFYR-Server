@@ -267,6 +267,11 @@ async function run() {
       res.send({status: true, makeInstructor, result})
     })
 
+    app.get('/newInstructor', async(req, res)=>{
+      const getNew = await instCollection.find({courseID: "not-assigned"},{projection: {email:1, name:1, _id: 0}}).toArray();
+      res.send(getNew)
+    })
+
     app.post("/addClass", async (req, res) => {
       const body = req.body;
       const insturctorQuery = { _id: new ObjectId(body.classId) };
