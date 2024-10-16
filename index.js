@@ -253,7 +253,18 @@ async function run() {
       const email = req.query.email;
       const query = { email: email};
       const makeInstructor = await userCollection.updateOne(query, { $set: { role: "instructor" } });
-      res.send({status: true, makeInstructor})
+      const userInfo = await userCollection.findOne(query);
+      const info = {
+        email: userInfo.email,
+        name: userInfo.name,
+        image: userInfo.photo,
+        course: 'not-assigned',
+        details: 'not-assigned',
+        tag: "not-assigned",
+        courseID : 'not-assigned'
+      }
+      const result = await instCollection.insertOne(info);
+      res.send({status: true, makeInstructor, result})
     })
 
     app.post("/addClass", async (req, res) => {
