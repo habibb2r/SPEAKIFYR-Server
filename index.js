@@ -272,6 +272,34 @@ async function run() {
       res.send(getNew)
     })
 
+    app.post('/addCourse', async(req, res)=>{
+      const body = req.body;
+      const forClassData = {
+        name: body.name,
+        instructor: body.instructor,
+        image: body.image,
+        sit: parseInt(body.sit),
+        price: parseInt(body.price),
+        assign_room: parseInt(body.assign_room),
+        camp_start: body.camp_start,
+        camp_end: body.camp_end,
+        course_tag: body.course_tag,
+        total_ernolled: 0
+      }
+      const result = await classCollection.insertOne(forClassData);
+      const course_ID = result.insertedId.toString();
+      const forInstData = {
+        course: body.name,
+        details: body.details,
+        tag: body.course_tag,
+        courseID: course_ID
+      }
+      const updateInstData = await instCollection.updateOne({email: body.instructor_email}, 
+        {$set: forInstData}
+      )
+      res.send({status: true, result, updateInstData})
+    })
+
     app.post("/addClass", async (req, res) => {
       const body = req.body;
       const insturctorQuery = { _id: new ObjectId(body.classId) };
