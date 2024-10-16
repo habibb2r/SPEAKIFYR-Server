@@ -249,6 +249,13 @@ async function run() {
       res.send({status: true, result});
     });
 
+    app.patch('/makeInstructor', async(req, res)=>{
+      const email = req.query.email;
+      const query = { email: email};
+      const makeInstructor = await userCollection.updateOne(query, { $set: { role: "instructor" } });
+      res.send({status: true, makeInstructor})
+    })
+
     app.post("/addClass", async (req, res) => {
       const body = req.body;
       const insturctorQuery = { _id: new ObjectId(body.classId) };
