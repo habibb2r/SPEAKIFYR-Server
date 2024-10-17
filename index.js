@@ -303,6 +303,16 @@ async function run() {
     app.get('/getInstructors', async(req, res)=>{
       const result = await instCollection.find().toArray();
       res.send(result)
+    });
+
+    app.patch('/unassignCourse/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const getCourseInfo = await instCollection.findOne(query);
+      const courseId = getCourseInfo.courseID;
+      const updateCourse = await classCollection.updateOne({_id: new ObjectId(courseId)}, {$set: {instructor: "not-assigned"}});
+      const updateInstructor = await instCollection.updateOne(query, {$set: {courseID: "not-assigned", tag: "not-assigned", course: "not-assigned", details: "not-assigned"}});
+      res.send({status: true, updateCourse, updateInstructor})
     })
 
     app.post("/addClass", async (req, res) => {
