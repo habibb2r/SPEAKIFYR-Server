@@ -300,6 +300,11 @@ async function run() {
       res.send({status: true, result, updateInstData})
     })
 
+    app.get('/getInstructors', async(req, res)=>{
+      const result = await instCollection.find().toArray();
+      res.send(result)
+    })
+
     app.post("/addClass", async (req, res) => {
       const body = req.body;
       const insturctorQuery = { _id: new ObjectId(body.classId) };
