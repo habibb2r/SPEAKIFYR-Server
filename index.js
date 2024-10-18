@@ -315,6 +315,22 @@ async function run() {
       res.send({status: true, updateCourse, updateInstructor})
     })
 
+    app.delete('/removeInstructor/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const getInstructorInfo = await instCollection.findOne(query);
+      const email = getInstructorInfo.email;
+      const updateUser = await userCollection.updateOne({email: email}, {$set: {role: "user"}});
+      if(updateUser.modifiedCount){
+        const result = await instCollection.deleteOne(query);
+        return res.send({status: true, result})
+      }
+      else{
+        return res.send({ status: false, message: "Instructor not found" });
+      }
+      
+    })
+
     app.post("/addClass", async (req, res) => {
       const body = req.body;
       const insturctorQuery = { _id: new ObjectId(body.classId) };
