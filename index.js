@@ -331,6 +331,16 @@ async function run() {
       
     })
 
+    app.patch('/courseAssignInstructor', async(req, res)=>{
+      const body = req.body;
+      const updateInstData = await instCollection.updateOne({email: body.inst_email}, {$set: { courseID: body._id, details: body.details, tag: body.course_tag, course: body.name}})
+      const updateCourse = await classCollection.updateOne({_id: new ObjectId(body._id)}, {$set: {instructor: body.instructor}})
+      res.send({status: true, updateInstData, updateCourse})
+      // const query = { courseID: body.courseId };
+      // const updateCourse = await instCollection.updateOne(query, {$set: {instructor: body.instructor_email}});
+      // res.send({status: true, updateCourse})
+    })
+
     app.post("/addClass", async (req, res) => {
       const body = req.body;
       const insturctorQuery = { _id: new ObjectId(body.classId) };
