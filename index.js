@@ -309,9 +309,13 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const getCourseInfo = await instCollection.findOne(query);
+      console.log(getCourseInfo)
       const courseId = getCourseInfo.courseID;
+      console.log(courseId)
       const updateCourse = await classCollection.updateOne({_id: new ObjectId(courseId)}, {$set: {instructor: "not-assigned"}});
+      console.log(updateCourse)
       const updateInstructor = await instCollection.updateOne(query, {$set: {courseID: "not-assigned", tag: "not-assigned", course: "not-assigned", details: "not-assigned"}});
+      console.log(updateInstructor)
       res.send({status: true, updateCourse, updateInstructor})
     })
 
@@ -331,14 +335,37 @@ async function run() {
       
     })
 
-    app.patch('/courseAssignInstructor', async(req, res)=>{
+    app.get('/adminClasses', async(req, res)=>{
+      const result = await classCollection.find().toArray();
+      res.send(result)
+    })
+
+    app.patch('/updateClass/:id', async(req, res)=>{
+      const classId = req.params.id;
       const body = req.body;
-      const updateInstData = await instCollection.updateOne({email: body.inst_email}, {$set: { courseID: body._id, details: body.details, tag: body.course_tag, course: body.name}})
-      const updateCourse = await classCollection.updateOne({_id: new ObjectId(body._id)}, {$set: {instructor: body.instructor}})
-      res.send({status: true, updateInstData, updateCourse})
-      // const query = { courseID: body.courseId };
-      // const updateCourse = await instCollection.updateOne(query, {$set: {instructor: body.instructor_email}});
-      // res.send({status: true, updateCourse})
+      const query = { _id: new ObjectId(classId) };
+      console.log(body)
+      const updatedData = {
+        name: body.name,
+        instructor: body.instructor,
+        sit: parseInt(body.sit),
+        price: parseInt(body.price),
+        assign_room: parseInt(body.assign_room),
+        course_tag: body.course_tag,
+      }
+      // console.log(classId)
+      body.inst_email ? await instCollection.updateOne({email: body.inst_email}, {$set: { courseID: classId, details: body.details, tag: body.course_tag, course: body.name}}) : ''
+      const updateCourse = await classCollection.updateOne(query, {$set: updatedData})
+      res.send({status: true, updateCourse})
+     
+    })
+
+    app.delete('/removeCourse/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const removeFromCart = await myClassCollection.deleteMany({classId: id});
+      const result = await classCollection.deleteOne(query);
+      res.send({status: true, result, removeFromCart})
     })
 
     app.post("/addClass", async (req, res) => {
