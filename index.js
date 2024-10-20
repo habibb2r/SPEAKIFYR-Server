@@ -27,7 +27,7 @@ const verifyJWT = (req, res, next) => {
 };
 
 app.get("/", (req, res) => {
-  res.send("Running Assignment 12 Server");
+  res.send("Running Summer Camp Server");
 });
 
 //DB
@@ -47,7 +47,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     //Collections
     const classCollection = client.db("summerCamp").collection("classList");
