@@ -77,7 +77,7 @@ async function run() {
     };
 
     app.get("/classes", async (req, res) => {
-      console.log('Connect')
+      // console.log('Connect')
       const result = await classCollection.find().toArray();
       res.send(result);
     });
@@ -275,9 +275,10 @@ async function run() {
 
     app.post('/addCourse', async(req, res)=>{
       const body = req.body;
+      const instructorInfo = await instCollection.findOne({email: body.instructor_email});
       const forClassData = {
         name: body.name,
-        instructor: body.instructor,
+        instructor: instructorInfo.name,
         image: body.image,
         sit: parseInt(body.sit),
         price: parseInt(body.price),
@@ -325,7 +326,7 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const getInstructorInfo = await instCollection.findOne(query);
       const email = getInstructorInfo.email;
-      const updateUser = await userCollection.updateOne({email: email}, {$set: {role: "user"}});
+      const updateUser = await userCollection.updateOne({email: email}, {$set: {role: "student"}});
       if(updateUser.modifiedCount){
         const result = await instCollection.deleteOne(query);
         return res.send({status: true, result})
@@ -345,10 +346,12 @@ async function run() {
       const classId = req.params.id;
       const body = req.body;
       const query = { _id: new ObjectId(classId) };
+      const getInstructorInfo = await instCollection.findOne({email: body.inst_email});
+      const getCourseInfo = await classCollection.findOne(query);
       // console.log(body)
       const updatedData = {
         name: body.name,
-        instructor: body.instructor,
+        instructor : getInstructorInfo? getInstructorInfo.name : getCourseInfo.instructor,
         sit: parseInt(body.sit),
         price: parseInt(body.price),
         assign_room: parseInt(body.assign_room),
